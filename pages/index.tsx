@@ -33,22 +33,32 @@ export default function Home(props) {
   const getMorePosts = async () => {
     setLoading(true);
     const last = posts[posts.length - 1];
-    const cursor = typeof last.createdAt === 'number' ? fromMillis(last.createdAt) : last.createdAt;
-    const query = firestore
-      .collectionGroup('posts')
-      .where('published', '==', true)
-      .orderBy('createdAt', 'desc')
-      .startAfter(cursor)
-      .limit(LIMIT);
-
-    const newPosts = (await query.get()).docs.map((doc) => doc.data());
-
-    setPosts(posts.concat(newPosts));
-    setLoading(false);
-
-    if (newPosts.length < LIMIT) {
+    if (!posts.length) {
       setPostsEnd(true);
+      setLoading(false);
     }
+    try {
+      const cursor = typeof last.createdAt === 'number' ? fromMillis(last.createdAt) : last.createdAt;
+      const query = firestore
+        .collectionGroup('posts')
+        .where('published', '==', true)
+        .orderBy('createdAt', 'desc')
+        .startAfter(cursor)
+        .limit(LIMIT);
+
+      const newPosts = (await query.get()).docs.map((doc) => doc.data());
+
+      setPosts(posts.concat(newPosts));
+      setLoading(false);
+
+      if (newPosts.length < LIMIT) {
+        setPostsEnd(true);
+      }
+    }
+    catch (e) {
+      toast.error("There are no messages to show");
+    }
+
   }
   return (
     <main>
