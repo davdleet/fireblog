@@ -9,7 +9,7 @@ import PostFeed from '../components/PostFeed';
 
 import toast from 'react-hot-toast'
 
-const LIMIT = 1;
+const LIMIT = 10;
 
 export async function getServerSideProps(context) {
   const postsQuery = firestore
