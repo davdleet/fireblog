@@ -3,7 +3,7 @@ import { doc } from 'firebase/firestore';
 import { useDocumentData } from 'react-firebase-hooks/firestore';
 import { postToJSON } from "../../lib/firebase";
 import PostContent from "../../components/PostContent";
-import styles from '@styles/Post.module.css';
+import styles from "../../styles/Post.module.css";
 export async function getStaticProps({ params }) {
     const { username, slug } = params;
     const userDoc = await getUserWithUsername(username);
