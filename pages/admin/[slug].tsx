@@ -25,7 +25,7 @@ function PostManager() {
     const router = useRouter();
     const { slug } = router.query;
 
-    const postRef = firestore.collection('users').doc(auth.currentUser.uid).collection('posts').doc(slug);
+    const postRef: any = firestore.collection('users').doc(auth.currentUser.uid).collection('posts').doc(slug.toString());
     const [post] = useDocumentData(postRef);
 
     return (
@@ -86,13 +86,13 @@ function PostForm({ defaultValues, postRef, preview }) {
                     minLength: { value: 10, message: 'content is too short' },
                     required: { value: true, message: 'content is required' }
                 })}></textarea>
-                {errors.content && <p className="text-danger">{errors.content.message}</p>}
+                {errors.content && <p className="text-danger">{errors.content.message.toString()}</p>}
                 <fieldset>
                     <input className={styles.checkbox} name="published" type="checkbox" {...register('published')} />
                     <label>Published</label>
                 </fieldset>
 
-                <button type="submit" className="btn-green" disabled={errors.content}>
+                <button type="submit" className="btn-green" disabled={!!errors.content}>
                     Save Changes
                 </button>
             </div>
