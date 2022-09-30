@@ -14,7 +14,7 @@ export default function ImageUploader() {
     // Creates a firebase upload task
     const uploadFile = async (e) => {
         // Get the file from the DOM
-        const file = Array.from(e.target.files)[0];
+        const file: any = Array.from(e.target.files)[0];
         const extension = file.type.split('/')[1];
 
         // Make a reference to the storage bucket location
@@ -27,7 +27,7 @@ export default function ImageUploader() {
         // Listen for updates to upload task
         task.on(STATE_CHANGED, (snapshot) => {
             const pct = ((snapshot.bytesTransferred / snapshot.totalBytes) * 100).toFixed(0);
-            setProgress(pct);
+            setProgress(parseInt(pct));
 
             // Get downloadURL AFTER task resolves (Note: this is not a native Promise)
             task.then((d) => ref.getDownloadURL()).then((url) => {
