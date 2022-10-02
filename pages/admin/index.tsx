@@ -4,6 +4,7 @@ import AuthCheck from '../../components/AuthCheck';
 import PostFeed from '../../components/PostFeed';
 import { useCollection } from 'react-firebase-hooks/firestore';
 import { UserContext } from '../../lib/context';
+import { collection, orderBy, query } from 'firebase/firestore';
 import { firestore, auth, serverTimestamp } from '../../lib/firebase';
 import { useRouter } from 'next/router';
 import { useContext, useState } from 'react';
@@ -22,9 +23,10 @@ export default function AdminPostsPage({ }) {
 }
 
 function PostList() {
-    const ref = firestore.collection('users').doc(auth.currentUser.uid).collection('posts');
-    const query = ref.orderBy('createdAt');
-    const [querySnapshot] = useCollection(query);
+    const ref = collection(firestore, 'users', auth.currentUser.uid, 'posts');
+    //const ref = firestore.collection('users').doc(auth.currentUser.uid).collection('posts');
+    const qry = query(ref, orderBy('createdAt'));
+    const [querySnapshot] = useCollection(qry);
     const posts = querySnapshot?.docs.map((doc) => doc.data());
 
     return (
