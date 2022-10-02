@@ -9,7 +9,7 @@ function PostItem({ post, admin = false }) {
     const minutesToRead = (wordCount / 100 + 1).toFixed(0);
 
     return (
-        <div className="card">
+        <div className="card max-w-full flex-grow">
             <Link href={`/${post.username}`}>
                 <a>
                     <strong>By @{post.username}</strong>

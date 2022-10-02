@@ -6,7 +6,6 @@ import { useState } from 'react';
 import Loader from '../components/Loader'
 import { firestore, fromMillis, postToJSON } from '../lib/firebase';
 import PostFeed from '../components/PostFeed';
-
 import toast from 'react-hot-toast'
 
 const LIMIT = 10;
@@ -61,13 +60,13 @@ export default function Home(props) {
 
   }
   return (
-    <main>
+    <main className="">
       <PostFeed posts={posts} />
 
       {!loading && !postsEnd && <button onClick={getMorePosts}>Load More</button>}
       <Loader show={loading} />
 
-      {postsEnd && "You have reached the end"}
+      {postsEnd && <div className='font-semibold w-auto flex mx-auto justify-center'>You have reached the end</div>}
     </main>
   )
 }
