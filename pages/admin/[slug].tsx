@@ -4,7 +4,7 @@ import { firestore, auth, serverTimestamp } from '../../lib/firebase';
 import ImageUploader from '../../components/ImageUploader';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import { doc, collection } from 'firebase/firestore';
+import { doc, collection, updateDoc } from 'firebase/firestore';
 import { useDocumentData } from 'react-firebase-hooks/firestore';
 import { useForm } from 'react-hook-form';
 import ReactMarkdown from 'react-markdown';
@@ -26,9 +26,9 @@ function PostManager() {
     const { slug } = router.query;
 
     //const postRef: any = firestore.collection('users').doc(auth.currentUser.uid).collection('posts').doc(slug.toString());
-    const postRef = doc(collection(firestore, 'users', auth.currentUser.uid, 'posts', slug.toString()));
+    const postRef = doc(collection(firestore, 'users', auth.currentUser.uid, 'posts'), slug.toString());
+    console.log("postref:", postRef);
     const [post] = useDocumentData(postRef);
-
     return (
         <main className={styles.container}>
             {post && (
@@ -37,7 +37,7 @@ function PostManager() {
                         <h1>{post.title}</h1>
                         <p>ID: {post.slug}</p>
 
-                        <PostForm postRef={postRef} defaultValues={post} preview={preview} />
+                        <PostForm defaultValues={post} postRef={postRef} preview={preview} />
                     </section>
 
                     <aside>
@@ -58,11 +58,18 @@ function PostForm({ defaultValues, postRef, preview }) {
 
     //const { isValid, isDirty } = formState;
     const updatePost = async ({ content, published }) => {
-        await postRef.update({
+        // await postRef.update({
+        //     content,
+        //     published,
+        //     updatedAt: serverTimestamp(),
+        // });
+
+        await updateDoc(postRef, {
             content,
             published,
             updatedAt: serverTimestamp(),
         });
+        console.log('updated');
 
         reset({ content, published });
 

@@ -15,7 +15,6 @@ export async function getStaticProps({ params }) {
     let path;
 
     if (userDoc) {
-        const postsCol = collection(firestore, 'posts');
         // const postRef= userDoc.ref.collection('posts').doc(slug);
         const postRef = doc(collection(userDoc.ref, 'posts'), slug);
         post = postToJSON(await getDoc(postRef));
@@ -66,7 +65,7 @@ export default function Post(props) {
                             <button>💗 Sign up</button>
                         </Link>
                     }>
-                    <HeartButton postRef={doc(props.path)} />
+                    <HeartButton postRef={doc(firestore, props.path)} />
                 </AuthCheck>
             </aside>
         </main>
