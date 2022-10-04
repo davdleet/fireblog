@@ -4,7 +4,7 @@ import { firestore, auth, serverTimestamp } from '../../lib/firebase';
 import ImageUploader from '../../components/ImageUploader';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import { doc } from 'firebase/firestore';
+import { doc, collection } from 'firebase/firestore';
 import { useDocumentData } from 'react-firebase-hooks/firestore';
 import { useForm } from 'react-hook-form';
 import ReactMarkdown from 'react-markdown';
@@ -26,7 +26,7 @@ function PostManager() {
     const { slug } = router.query;
 
     //const postRef: any = firestore.collection('users').doc(auth.currentUser.uid).collection('posts').doc(slug.toString());
-    const postRef = doc(firestore, 'users', auth.currentUser.uid, 'posts', slug.toString());
+    const postRef = doc(collection(firestore, 'users', auth.currentUser.uid, 'posts', slug.toString()));
     const [post] = useDocumentData(postRef);
 
     return (
