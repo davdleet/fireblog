@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { auth, storage, STATE_CHANGED } from '../lib/firebase';
-
+import { ref, getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 import Loader from './Loader';
 
 export default function ImageUploader() {
@@ -18,11 +18,11 @@ export default function ImageUploader() {
         const extension = file.type.split('/')[1];
 
         // Make a reference to the storage bucket location
-        const ref = storage.ref(`uploads/${auth.currentUser.uid}/${Date.now()}.${extension}`);
+        const bucket_ref = ref(storage, `uploads/${auth.currentUser.uid}/${Date.now()}.${extension}`);
         setUploading(true);
 
         // Starts the upload
-        const task = ref.put(file);
+        const task = uploadBytesResumable(bucket_ref, file);
 
         // Listen for updates to upload task
         task.on(STATE_CHANGED, (snapshot) => {
@@ -30,13 +30,13 @@ export default function ImageUploader() {
             setProgress(parseInt(pct));
 
             // Get downloadURL AFTER task resolves (Note: this is not a native Promise)
-            task.then((d) => ref.getDownloadURL()).then((url) => {
+            task.then((d) => getDownloadURL(bucket_ref)).then((url) => {
                 setDownloadURL(url);
                 setUploading(false);
             });
         });
 
-        task.then((d) => ref.getDownloadURL()).then((url) => {
+        task.then((d) => getDownloadURL(bucket_ref)).then((url) => {
             setDownloadURL(url);
             setUploading(false);
         });
