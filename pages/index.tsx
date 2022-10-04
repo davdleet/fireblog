@@ -5,20 +5,20 @@ import Link from 'next/link'
 import { useState } from 'react';
 import Loader from '../components/Loader'
 import { firestore, fromMillis, postToJSON } from '../lib/firebase';
+import { query, collectionGroup, where, getDocs, orderBy, limit, startAfter, doc } from 'firebase/firestore';
 import PostFeed from '../components/PostFeed';
 import toast from 'react-hot-toast'
 
 const LIMIT = 10;
 
 export async function getServerSideProps(context) {
-  const postsQuery = firestore
-    .collectionGroup('posts')
-    .where('published', '==', true)
-    .orderBy('createdAt', 'desc')
-    .limit(LIMIT);
-
-  const posts = (await postsQuery.get()).docs.map(postToJSON);
-
+  // const postsQuery = firestore
+  //   .collectionGroup('posts')
+  //   .where('published', '==', true)
+  //   .orderBy('createdAt', 'desc')
+  //   .limit(LIMIT);
+  const postsQuery = query(collectionGroup(firestore, 'posts'), where('published', '==', true), orderBy('createdAt', 'desc'), limit(LIMIT));
+  const posts = (await getDocs(postsQuery)).docs.map(postToJSON);
   return {
     props: { posts } // pass to page component
   }
@@ -38,14 +38,14 @@ export default function Home(props) {
     }
     try {
       const cursor = typeof last.createdAt === 'number' ? fromMillis(last.createdAt) : last.createdAt;
-      const query = firestore
-        .collectionGroup('posts')
-        .where('published', '==', true)
-        .orderBy('createdAt', 'desc')
-        .startAfter(cursor)
-        .limit(LIMIT);
-
-      const newPosts = (await query.get()).docs.map((doc) => doc.data());
+      // const query = firestore
+      //   .collectionGroup('posts')
+      //   .where('published', '==', true)
+      //   .orderBy('createdAt', 'desc')
+      //   .startAfter(cursor)
+      //   .limit(LIMIT);
+      const q = query(collectionGroup(firestore, 'posts'), where('published', '==', true), orderBy('createdAt', 'desc'), startAfter(cursor), limit(LIMIT));
+      const newPosts = (await getDocs(q)).docs.map((doc) => doc.data());
 
       setPosts(posts.concat(newPosts));
       setLoading(false);

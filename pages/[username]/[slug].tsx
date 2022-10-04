@@ -1,5 +1,5 @@
 import { firestore, getUserWithUsername } from "../../lib/firebase";
-import { doc } from 'firebase/firestore';
+import { doc, collection, collectionGroup, getDoc, getDocs } from 'firebase/firestore';
 import { useDocumentData } from 'react-firebase-hooks/firestore';
 import { postToJSON } from "../../lib/firebase";
 import PostContent from "../../components/PostContent";
@@ -15,8 +15,10 @@ export async function getStaticProps({ params }) {
     let path;
 
     if (userDoc) {
-        const postRef = userDoc.ref.collection('posts').doc(slug);
-        post = postToJSON(await postRef.get());
+        const postsCol = collection(firestore, 'posts');
+        // const postRef= userDoc.ref.collection('posts').doc(slug);
+        const postRef = doc(collection(userDoc.ref, 'posts'), slug);
+        post = postToJSON(await getDoc(postRef));
 
         path = postRef.path
     }
@@ -28,8 +30,8 @@ export async function getStaticProps({ params }) {
 }
 
 export async function getStaticPaths() {
-    const snapshot = await firestore.collectionGroup('posts').get();
-
+    //const snapshot = await firestore.collectionGroup('posts').get();
+    const snapshot = await getDocs(collectionGroup(firestore, 'posts'));
     const paths = snapshot.docs.map((doc) => {
         const { slug, username } = doc.data();
         return {
@@ -64,7 +66,7 @@ export default function Post(props) {
                             <button>💗 Sign up</button>
                         </Link>
                     }>
-                    <HeartButton postRef={firestore.doc(props.path)} />
+                    <HeartButton postRef={doc(props.path)} />
                 </AuthCheck>
             </aside>
         </main>

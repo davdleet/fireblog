@@ -3,6 +3,8 @@ import { useContext, useEffect, useCallback } from "react"
 import { UserContext } from "../lib/context"
 import { useState } from "react"
 import { firestore } from "../lib/firebase"
+import { signInWithPopup } from "firebase/auth"
+import { writeBatch, doc, getDoc } from "firebase/firestore"
 import debounce from 'lodash.debounce';
 export default function EnterPage({ }) {
 
@@ -25,7 +27,7 @@ export default function EnterPage({ }) {
 // sign in with Google button
 function SignInButton() {
     const signInWithGoogle = async () => {
-        await auth.signInWithPopup(googleAuthProvider);
+        await signInWithPopup(auth, googleAuthProvider);
     };
 
     return (
@@ -73,8 +75,9 @@ function UsernameForm() {
     const checkUsername = useCallback(
         debounce(async (username) => {
             if (username.length >= 3) {
-                const ref = firestore.doc(`usernames/${username}`);
-                const { exists } = await ref.get();
+                const ref = doc(firestore, `usernames/${username}`);
+                //const { exists } = await ref.get();
+                const { exists } = await getDoc(ref);
                 console.log('Firestore username check:', exists);
                 setIsValid(!exists)
                 setLoading(false)
@@ -85,10 +88,13 @@ function UsernameForm() {
 
     const onSubmit = async (e) => {
         e.preventDefault()
-        const userDoc = firestore.doc(`users/${user.uid}`);
-        const usernameDoc = firestore.doc(`usernames/${formValue}`);
+        //const userDoc = firestore.doc(`users/${user.uid}`);
+        const userDoc = doc(firestore, `users/${user.uid}`);
+        //const usernameDoc = firestore.doc(`usernames/${formValue}`);
+        const usernameDoc = doc(firestore, `usernames/${formValue}`);
 
-        const batch = firestore.batch();
+        //const batch = firestore.batch();
+        const batch = writeBatch(firestore);
         batch.set(userDoc, { username: formValue, photoURL: user.photoURL, displayName: user.displayName });
         batch.set(usernameDoc, { uid: user.uid });
         await batch.commit();

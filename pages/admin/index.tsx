@@ -4,7 +4,7 @@ import AuthCheck from '../../components/AuthCheck';
 import PostFeed from '../../components/PostFeed';
 import { useCollection } from 'react-firebase-hooks/firestore';
 import { UserContext } from '../../lib/context';
-import { collection, orderBy, query } from 'firebase/firestore';
+import { collection, orderBy, query, setDoc, doc } from 'firebase/firestore';
 import { firestore, auth, serverTimestamp } from '../../lib/firebase';
 import { useRouter } from 'next/router';
 import { useContext, useState } from 'react';
@@ -49,8 +49,8 @@ function CreateNewPost() {
     const createPost = async (e) => {
         e.preventDefault();
         const uid = auth.currentUser.uid;
-        const ref = firestore.collection('users').doc(uid).collection('posts').doc(slug);
-
+        //const ref = firestore.collection('users').doc(uid).collection('posts').doc(slug);
+        const ref = doc(collection(firestore, 'users', uid, 'posts', slug));
         const data = {
             title,
             slug,
@@ -63,7 +63,9 @@ function CreateNewPost() {
             heartCount: 0,
         };
 
-        await ref.set(data);
+
+        //await ref.set(data);
+        await setDoc(ref, data);
 
         toast.success('Post created!');
 
