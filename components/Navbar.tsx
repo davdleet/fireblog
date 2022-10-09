@@ -22,7 +22,7 @@ export default function Navbar() {
                                     <button>Write Posts</button>
                                 </Link>
                             </li>
-                            <li>
+                            <li className="ml-5">
                                 <Link href={`/${username}`}>
                                     <img src={user?.photoURL} alt="" />
                                 </Link>
