@@ -4,7 +4,7 @@ import { UserContext } from "../lib/context"
 import { useState } from "react"
 import { firestore } from "../lib/firebase"
 import { signInWithPopup } from "firebase/auth"
-import { writeBatch, doc, getDoc } from "firebase/firestore"
+import { writeBatch, doc, collection, getDoc } from "firebase/firestore"
 import debounce from 'lodash.debounce';
 export default function EnterPage({ }) {
 
@@ -16,7 +16,7 @@ export default function EnterPage({ }) {
     return (
         <main>
             {user ?
-                !username ? <UsernameForm /> : <SignOutButton />
+                !username ? <UsernameForm /> : window.location.href = '/'
                 : <SignInButton />
             }
 
@@ -48,7 +48,7 @@ function UsernameForm() {
     const [formValue, setFormValue] = useState('')
     const [isValid, setIsValid] = useState(false)
     const [loading, setLoading] = useState(false)
-
+    const [taken, setTaken] = useState(false)
     const { user, username } = useContext(UserContext)
 
     useEffect(() => { }, [formValue])
@@ -75,11 +75,20 @@ function UsernameForm() {
     const checkUsername = useCallback(
         debounce(async (username) => {
             if (username.length >= 3) {
-                const ref = doc(firestore, `usernames/${username}`);
+                setIsValid(true)
+                const ref = doc(firestore, 'usernames', `${username}`);
                 //const { exists } = await ref.get();
-                const { exists } = await getDoc(ref);
-                console.log('Firestore username check:', exists);
-                setIsValid(!exists)
+                const snap = await getDoc(ref);
+                if (snap.exists()) {
+                    setTaken(true);
+                }
+                else {
+                    setTaken(false);
+                }
+                setLoading(false)
+            }
+            else {
+                setIsValid(false)
                 setLoading(false)
             }
         }, 500),
@@ -107,7 +116,7 @@ function UsernameForm() {
                 <form onSubmit={onSubmit} >
                     <input name="username" placeholder="username" value={formValue} onChange={onChange} />
 
-                    <UsernameMessage username={formValue} isValid={isValid} loading={loading} />
+                    <UsernameMessage username={formValue} isValid={isValid} loading={loading} taken={taken} />
                     <button type='submit' className="btn-green" disabled={!isValid}>
                         Choose
                     </button>
@@ -126,7 +135,7 @@ function UsernameForm() {
     )
 }
 
-function UsernameMessage({ username, isValid, loading }) {
+function UsernameMessage({ username, isValid, loading, taken }) {
     if (loading) {
         return <p>Checking username...</p>
     }
@@ -134,6 +143,9 @@ function UsernameMessage({ username, isValid, loading }) {
         return <p className="text-success">{username} is available!</p>
     }
     else if (username && !isValid) {
+        return <p className="text-danger">That username is not valid!</p>
+    }
+    else if (username && isValid && !taken) {
         return <p className="text-danger">{username} is taken!</p>
     }
     else {
