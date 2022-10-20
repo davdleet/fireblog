@@ -3,7 +3,10 @@ import PostFeed from '../../components/PostFeed';
 import Metatags from '../../components/Metatags';
 import { getUserWithUsername, postToJSON } from '../../lib/firebase';
 import { query as qry, collection, getDocs, where } from 'firebase/firestore';
-
+import { UserContext } from '../../lib/context';
+import { useContext } from 'react';
+import { firestore } from '../../lib/firebase';
+import { auth } from '../../lib/firebase';
 export async function getServerSideProps({ query }) {
     const { username } = query
 
@@ -35,12 +38,22 @@ export async function getServerSideProps({ query }) {
     }
 }
 
+function signOut() {
+    auth.signOut();
+    //redirect to home page
+    window.location.href = "/";
+}
 
 export default function UserProfilePage({ user, posts }) {
+    const { username } = useContext(UserContext);
+    const currentUser = username;
     return (
         <main>
             <Metatags title={user.username} image={user.photoURL} description={`${user.username}'s public profile`} />
             <UserProfile user={user} />
+            <div>
+                {currentUser == user.username && <button onClick={signOut}>Sign Out</button>}
+            </div>
             <PostFeed posts={posts} />
         </main>
     );
