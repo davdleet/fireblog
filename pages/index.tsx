@@ -2,6 +2,7 @@ import Head from 'next/head'
 import Image from 'next/image'
 import styles from '../styles/Home.module.css'
 import Link from 'next/link'
+import MetaTags from '../components/Metatags'
 import { useState } from 'react';
 import Loader from '../components/Loader'
 import { firestore, fromMillis, postToJSON } from '../lib/firebase';
@@ -61,6 +62,7 @@ export default function Home(props) {
   }
   return (
     <main className="">
+      <MetaTags title="Home" description="A social media platform for developers" image="static/favicon/favicon.ico" />
       <PostFeed posts={posts} />
 
       {!loading && !postsEnd && <button onClick={getMorePosts}>Load More</button>}
