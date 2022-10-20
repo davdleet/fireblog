@@ -23,7 +23,7 @@ export default function AdminPostsPage({ }) {
 }
 
 function PostList() {
-    const ref = collection(firestore, 'users', auth.currentUser.uid, 'posts');
+    const ref = collection(firestore, `users/${auth.currentUser.uid}/posts`);
     //const ref = firestore.collection('users').doc(auth.currentUser.uid).collection('posts');
     const qry = query(ref, orderBy('createdAt'));
     const [querySnapshot] = useCollection(qry);
@@ -50,7 +50,7 @@ function CreateNewPost() {
         e.preventDefault();
         const uid = auth.currentUser.uid;
         //const ref = firestore.collection('users').doc(uid).collection('posts').doc(slug);
-        const ref = doc(collection(firestore, 'users', uid, 'posts', slug));
+        const ref = doc(collection(firestore, `users/${uid}/posts`), slug);
         const data = {
             title,
             slug,
