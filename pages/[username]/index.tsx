@@ -2,7 +2,7 @@ import UserProfile from '../../components/UserProfile';
 import PostFeed from '../../components/PostFeed';
 import Metatags from '../../components/Metatags';
 import { getUserWithUsername, postToJSON } from '../../lib/firebase';
-import { query as qry, collection, getDocs, where } from 'firebase/firestore';
+import { query as qry, collection, getDocs, where, orderBy, limit } from 'firebase/firestore';
 import { UserContext } from '../../lib/context';
 import { useContext } from 'react';
 import { firestore } from '../../lib/firebase';
@@ -22,7 +22,7 @@ export async function getServerSideProps({ query }) {
     if (userDoc) {
         console.log("userDoc exists");
         user = userDoc.data();
-        const postsQuery = qry(collection(userDoc.ref, 'posts'), where('published', '==', true));
+        const postsQuery = qry(collection(userDoc.ref, 'posts'), where('published', '==', true), orderBy('createdAt', 'desc'), limit(5));
         posts = (await getDocs(postsQuery)).docs.map(postToJSON);
         // const postsQuery = userDoc.ref
         //     .collection('posts')

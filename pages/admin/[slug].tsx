@@ -4,7 +4,7 @@ import { firestore, auth, serverTimestamp } from '../../lib/firebase';
 import ImageUploader from '../../components/ImageUploader';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import { doc, collection, updateDoc } from 'firebase/firestore';
+import { doc, collection, updateDoc, deleteDoc } from 'firebase/firestore';
 import { useDocumentData } from 'react-firebase-hooks/firestore';
 import { useForm } from 'react-hook-form';
 import ReactMarkdown from 'react-markdown';
@@ -46,12 +46,25 @@ function PostManager() {
                         <Link href={`/${post.username}/${post.slug}`}>
                             <button className="btn-blue">Live view</button>
                         </Link>
+                        <button className="btn-red" onClick={() => deletePost(postRef)}>Delete</button>
                     </aside>
                 </>
             )}
         </main>
     );
 }
+
+function deletePost(postRef: any) {
+    const confirmed = confirm('Are you sure you want to delete this post?');
+
+    if (confirmed) {
+        deleteDoc(postRef);
+        toast.error('Post deleted!');
+        window.location.href = '/admin';
+    }
+}
+
+
 
 function PostForm({ defaultValues, postRef, preview }) {
     const { register, handleSubmit, reset, watch, formState: { errors } } = useForm({ defaultValues, mode: 'onChange' });
